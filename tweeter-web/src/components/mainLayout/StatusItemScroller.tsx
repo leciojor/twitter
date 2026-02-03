@@ -13,7 +13,19 @@ import StatusItem from "../statusItem/StatusItem";
 
 export const PAGE_SIZE = 10;
 
-const StoryScroller = () => {
+interface Props {
+  itemDescription: string;
+  featureUrl: string;
+  loadMore: (
+    authToken: AuthToken,
+    userAlias: string,
+    pageSize: number,
+    lastItem: Status | null,
+  ) => Promise<[Status[], boolean]>;
+}
+
+const StatusItemScroller = (props: Props) => {
+  const { itemDescription, featureUrl, loadMore } = props;
   const { displayToast } = useContext(ToastActionsContext);
   const [items, setItems] = useState<Status[]>([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
@@ -56,11 +68,11 @@ const StoryScroller = () => {
 
   const loadMoreItems = async (lastItem: Status | null) => {
     try {
-      const [newItems, hasMore] = await loadMoreStoryItems(
+      const [newItems, hasMore] = await loadMoreFeedItems(
         authToken!,
         displayedUser!.alias,
         PAGE_SIZE,
-        lastItem
+        lastItem,
       );
 
       setHasMoreItems(() => hasMore);
@@ -69,17 +81,17 @@ const StoryScroller = () => {
     } catch (error) {
       displayToast(
         ToastType.Error,
-        `Failed to load story items because of exception: ${error}`,
-        0
+        `Failed to load ${itemDescription} items because of exception: ${error}`,
+        0,
       );
     }
   };
 
-  const loadMoreStoryItems = async (
+  const loadMoreFeedItems = async (
     authToken: AuthToken,
     userAlias: string,
     pageSize: number,
-    lastItem: Status | null
+    lastItem: Status | null,
   ): Promise<[Status[], boolean]> => {
     // TODO: Replace with the result of calling server
     return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
@@ -87,7 +99,7 @@ const StoryScroller = () => {
 
   const getUser = async (
     authToken: AuthToken,
-    alias: string
+    alias: string,
   ): Promise<User | null> => {
     // TODO: Replace with the result of calling server
     return FakeData.instance.findUserByAlias(alias);
@@ -107,7 +119,7 @@ const StoryScroller = () => {
             key={index}
             className="row mb-3 mx-0 px-0 border rounded bg-white"
           >
-           <StatusItem item={item} featurePath={"/story"}/>
+            <StatusItem item={item} featurePath={featureUrl} />
           </div>
         ))}
       </InfiniteScroll>
@@ -115,4 +127,4 @@ const StoryScroller = () => {
   );
 };
 
-export default StoryScroller;
+export default StatusItemScroller;

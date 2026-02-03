@@ -25,7 +25,7 @@ interface Props {
 }
 
 const StatusItem = (props: Props) => {
-  const {itemDescription, featureUrl, loadMore} = props;
+  const { itemDescription, featureUrl, loadMore } = props;
   const { displayToast } = useContext(ToastActionsContext);
   const [items, setItems] = useState<User[]>([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
