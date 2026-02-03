@@ -1,5 +1,5 @@
 import { ToastType } from "./Toast";
-import { ToastActionsContext } from "./ToastContexts";
+import { ToastActionsContext, ToastListContext } from "./ToastContexts";
 import { useContext } from "react";
 
 interface MessageActions {
@@ -33,6 +33,10 @@ export const useMessageActions = (): MessageActions => {
     displayErrorMessage: (message: string, bootstrapClasses?: string) =>
       displayToast(ToastType.Error, message, 0, undefined, bootstrapClasses),
     deleteAllMessages: deleteAllToasts,
-    deleteMessage: deleteToast
+    deleteMessage: deleteToast,
   };
+};
+
+export const useMessageList = () => {
+  return useContext(ToastListContext);
 };
