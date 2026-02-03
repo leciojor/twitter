@@ -16,7 +16,7 @@ const StatusItem = (props: Props) => {
     <div className="col bg-light mx-0 px-0">
       <div className="container px-0">
         <div className="row mx-0 px-0">
-          <div className="col- auto p-3">
+          <div className="col-auto p-3">
             <img
               src={item.user.imageUrl}
               className="img-fluid"
