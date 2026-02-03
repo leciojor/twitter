@@ -7,9 +7,8 @@ import {
   UserInfoActionsContext,
 } from "../userInfo/UserInfoContexts";
 import { useState, useEffect } from "react";
-import { ToastActionsContext } from "../toaster/ToastContexts";
 import { useParams } from "react-router-dom";
-import { ToastType } from "../toaster/Toast";
+import { useMessageActions } from "../toaster/MessageHooks";
 
 export const PAGE_SIZE = 10;
 
@@ -26,7 +25,7 @@ interface Props {
 
 const StatusItem = (props: Props) => {
   const { itemDescription, featureUrl, loadMore } = props;
-  const { displayToast } = useContext(ToastActionsContext);
+  const { displayErrorMessage } = useMessageActions();
   const [items, setItems] = useState<User[]>([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
   const [lastItem, setLastItem] = useState<User | null>(null);
@@ -65,10 +64,8 @@ const StatusItem = (props: Props) => {
       setLastItem(() => newItems[newItems.length - 1]);
       addItems(newItems);
     } catch (error) {
-      displayToast(
-        ToastType.Error,
+      displayErrorMessage(
         `Failed to load ${itemDescription} because of exception: ${error}`,
-        0,
       );
     }
   };

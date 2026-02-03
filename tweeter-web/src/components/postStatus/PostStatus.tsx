@@ -2,12 +2,12 @@ import "./PostStatus.css";
 import { useState } from "react";
 import { useContext } from "react";
 import { UserInfoContext } from "../userInfo/UserInfoContexts";
-import { ToastActionsContext } from "../toaster/ToastContexts";
 import { AuthToken, Status } from "tweeter-shared";
-import { ToastType } from "../toaster/Toast";
+import { useMessageActions } from "../toaster/MessageHooks";
 
 const PostStatus = () => {
-  const { displayToast, deleteToast } = useContext(ToastActionsContext);
+  const { displayInfoMessage, displayErrorMessage, deleteMessage } =
+    useMessageActions();
 
   const { currentUser, authToken } = useContext(UserInfoContext);
   const [post, setPost] = useState("");
@@ -20,33 +20,27 @@ const PostStatus = () => {
 
     try {
       setIsLoading(true);
-      postingStatusToastId = displayToast(
-        ToastType.Info,
-        "Posting status...",
-        0
-      );
+      postingStatusToastId = displayInfoMessage("Posting status...", 0);
 
       const status = new Status(post, currentUser!, Date.now());
 
       await postStatus(authToken!, status);
 
       setPost("");
-      displayToast(ToastType.Info, "Status posted!", 2000);
+      displayInfoMessage("Status posted!", 2000);
     } catch (error) {
-      displayToast(
-        ToastType.Error,
+      displayErrorMessage(
         `Failed to post the status because of exception: ${error}`,
-        0
       );
     } finally {
-      deleteToast(postingStatusToastId);
+      deleteMessage(postingStatusToastId);
       setIsLoading(false);
     }
   };
 
   const postStatus = async (
     authToken: AuthToken,
-    newStatus: Status
+    newStatus: Status,
   ): Promise<void> => {
     // Pause so we can see the logging out message. Remove when connected to the server
     await new Promise((f) => setTimeout(f, 2000));
