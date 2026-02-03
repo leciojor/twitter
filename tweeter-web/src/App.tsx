@@ -40,6 +40,7 @@ const App = () => {
 
 const AuthenticatedRoutes = () => {
   const { displayedUser } = useContext(UserInfoContext);
+  
   const loadMoreFollowees = async (
     authToken: AuthToken,
     userAlias: string,
@@ -49,6 +50,7 @@ const AuthenticatedRoutes = () => {
     // TODO: Replace with the result of calling server
     return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
   };
+
   const loadMoreFollowers = async (
     authToken: AuthToken,
     userAlias: string,
@@ -72,6 +74,7 @@ const AuthenticatedRoutes = () => {
           path="followees/:displayedUser"
           element={
             <UserItemScroller
+              key={`followees=${displayedUser!.alias}`}
               itemDescription="followees"
               featureUrl="/followees"
               loadMore={loadMoreFollowees}
@@ -82,6 +85,7 @@ const AuthenticatedRoutes = () => {
           path="followers/:displayedUser"
           element={
             <UserItemScroller
+              key={`followers=${displayedUser!.alias}`}
               itemDescription="followers"
               featureUrl="/followers"
               loadMore={loadMoreFollowers}
