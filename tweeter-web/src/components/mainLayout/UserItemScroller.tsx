@@ -1,70 +1,55 @@
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserItem from "../userItem/UserItem";
-import { AuthToken, FakeData, User } from "tweeter-shared";
+import { AuthToken, User } from "tweeter-shared";
 import { useUserInfo } from "../userInfo/UserHooks";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserActions } from "../userInfo/UserHooks";
-
-export const PAGE_SIZE = 10;
+import {
+  UserItemPresenter,
+  UserItemView,
+} from "../../presenter/UserItemPresenter";
 
 interface Props {
-  itemDescription: string;
   featureUrl: string;
-  loadMore: (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: User | null,
-  ) => Promise<[User[], boolean]>;
+  presenterFactory: (view: UserItemView) => UserItemPresenter;
 }
 
 const StatusItem = (props: Props) => {
-  const { itemDescription, featureUrl, loadMore } = props;
+  const { featureUrl } = props;
   const { displayErrorMessage } = useMessageActions();
   const [items, setItems] = useState<User[]>([]);
-  const [hasMoreItems, setHasMoreItems] = useState(true);
-  const [lastItem, setLastItem] = useState<User | null>(null);
-
-  const addItems = (newItems: User[]) =>
-    setItems((previousItems) => [...previousItems, ...newItems]);
 
   const { displayedUser, authToken } = useUserInfo();
   const { setDisplayedUser } = useUserActions();
   const { displayedUser: displayedUserAliasParam } = useParams();
 
+  const listener: UserItemView = {
+    addItems: (newItems: User[]) =>
+      setItems((previousItems) => [...previousItems, ...newItems]),
+    displayErrorMessage: displayErrorMessage,
+  };
+
+  const presenterRef = useRef<UserItemPresenter | null>(null);
+  if (!presenterRef.current) {
+    presenterRef.current = props.presenterFactory(listener);
+  }
+
   const getUser = async (
     authToken: AuthToken,
     alias: string,
   ): Promise<User | null> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.findUserByAlias(alias);
+    return presenterRef.current!.getUser(authToken, alias);
   };
 
   const reset = async () => {
     setItems(() => []);
-    setLastItem(() => null);
-    setHasMoreItems(() => true);
+    presenterRef.current!.reset();
   };
 
-  const loadMoreItems = async (lastItem: User | null) => {
-    try {
-      const [newItems, hasMore] = await loadMore(
-        authToken!,
-        displayedUser!.alias,
-        PAGE_SIZE,
-        lastItem,
-      );
-
-      setHasMoreItems(() => hasMore);
-      setLastItem(() => newItems[newItems.length - 1]);
-      addItems(newItems);
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to load ${itemDescription} because of exception: ${error}`,
-      );
-    }
+  const loadMoreItems = async () => {
+    presenterRef.current!.loadMoreItems(authToken!, displayedUser!.alias);
   };
 
   // Update the displayed user context variable whenever the displayedUser url parameter changes. This allows browser forward and back buttons to work correctly.
@@ -84,7 +69,7 @@ const StatusItem = (props: Props) => {
 
   useEffect(() => {
     reset();
-    loadMoreItems(null);
+    loadMoreItems();
   }, [displayedUser]);
 
   return (
@@ -93,8 +78,8 @@ const StatusItem = (props: Props) => {
         <InfiniteScroll
           className="pr-0 mr-0"
           dataLength={items.length}
-          next={() => loadMoreItems(lastItem)}
-          hasMore={hasMoreItems}
+          next={loadMoreItems}
+          hasMore={presenterRef.current!.hasMoreItems}
           loader={<h4>Loading...</h4>}
         >
           {items.map((item, index) => (
