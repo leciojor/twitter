@@ -1,8 +1,11 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { UserInfoActionsContext, UserInfoContext } from "./UserInfoContexts";
-import { AuthToken, FakeData, User } from "tweeter-shared";
 import { useNavigate } from "react-router-dom";
 import { useMessageActions } from "../toaster/MessageHooks";
+import {
+  UserHooksPresenter,
+  UserHooksView,
+} from "../../presenter/UserHooksPresenter";
 
 interface UserNavigation {
   navigateToUser: (event: React.MouseEvent) => Promise<void>;
@@ -25,13 +28,10 @@ export const useUserNavigation = (featurePath: string): UserNavigation => {
   };
   const { displayErrorMessage } = useMessageActions();
 
-  const getUser = async (
-    authToken: AuthToken,
-    alias: string,
-  ): Promise<User | null> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.findUserByAlias(alias);
-  };
+  const presenterRef = useRef<UserHooksPresenter | null>(null);
+  if (!presenterRef.current) {
+    presenterRef.current = new UserHooksPresenter({});
+  }
 
   return {
     navigateToUser: async (event: React.MouseEvent): Promise<void> => {
@@ -40,7 +40,7 @@ export const useUserNavigation = (featurePath: string): UserNavigation => {
       try {
         const alias = extractAlias(event.target.toString());
 
-        const toUser = await getUser(authToken!, alias);
+        const toUser = await presenterRef.current!.getUser(authToken!, alias);
 
         if (toUser) {
           if (!toUser.equals(displayedUser!)) {
