@@ -104,12 +104,13 @@ const UserInfo = () => {
                       className="btn btn-md btn-secondary me-1"
                       type="submit"
                       style={{ width: "6em" }}
-                      onClick={() =>
+                      onClick={(event) => {
+                        event.preventDefault();
                         presenterRef.current!.unfollowDisplayedUser(
                           authToken,
                           displayedUser,
-                        )
-                      }
+                        );
+                      }}
                     >
                       {isLoading ? (
                         <span
@@ -127,12 +128,13 @@ const UserInfo = () => {
                       className="btn btn-md btn-primary me-1"
                       type="submit"
                       style={{ width: "6em" }}
-                      onClick={() =>
+                      onClick={(event) => {
+                        event.preventDefault();
                         presenterRef.current!.followDisplayedUser(
                           authToken,
                           displayedUser,
-                        )
-                      }
+                        );
+                      }}
                     >
                       {isLoading ? (
                         <span
