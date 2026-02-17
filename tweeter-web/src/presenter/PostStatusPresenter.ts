@@ -10,23 +10,31 @@ export interface PostStatusView {
   displayErrorMessage: (message: string) => void;
   deleteMessage: (messageId: string) => void;
   setIsLoading: (isLoading: boolean) => void;
+  setPost: (post: string) => void;
 }
 
 export class PostStatusPresenter {
   private view: PostStatusView;
   private actionService: ActionService;
-  private _post: string = "";
 
   public constructor(view: PostStatusView) {
     this.view = view;
     this.actionService = new ActionService();
   }
 
-  public checkButtonStatus(authToken: AuthToken, currentUser: User) {
-    return !this.post.trim() || !authToken || !currentUser;
+  public checkButtonStatus(
+    authToken: AuthToken,
+    currentUser: User,
+    post: string,
+  ) {
+    return !post.trim() || !authToken || !currentUser;
   }
 
-  public async submitPost(authToken: AuthToken, currentUser: User) {
+  public async submitPost(
+    authToken: AuthToken,
+    currentUser: User,
+    post: string,
+  ) {
     var postingStatusToastId = "";
 
     try {
@@ -36,11 +44,11 @@ export class PostStatusPresenter {
         0,
       );
 
-      const status = new Status(this.post, currentUser!, Date.now());
+      const status = new Status(post, currentUser!, Date.now());
 
       await this.actionService.postStatus(authToken!, status);
 
-      this.post = "";
+      this.view.setPost("");
       this.view.displayInfoMessage("Status posted!", 2000);
     } catch (error) {
       this.view.displayErrorMessage(
@@ -50,9 +58,5 @@ export class PostStatusPresenter {
       this.view.deleteMessage(postingStatusToastId);
       this.view.setIsLoading(false);
     }
-  }
-
-  public set post(post: string) {
-    this._post = post;
   }
 }

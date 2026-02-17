@@ -1,7 +1,6 @@
 import "./PostStatus.css";
 import { useRef, useState } from "react";
 import { useUserInfo } from "../userInfo/UserHooks";
-import { AuthToken, Status } from "tweeter-shared";
 import { useMessageActions } from "../toaster/MessageHooks";
 import {
   PostStatusView,
@@ -14,12 +13,14 @@ const PostStatus = () => {
 
   const { currentUser, authToken } = useUserInfo();
   const [isLoading, setIsLoading] = useState(false);
+  const [post, setPost] = useState("");
 
   const listener: PostStatusView = {
     displayInfoMessage: displayInfoMessage,
     displayErrorMessage: displayErrorMessage,
     deleteMessage: deleteMessage,
     setIsLoading: setIsLoading,
+    setPost: setPost,
   };
 
   const presenterRef = useRef<PostStatusPresenter | null>(null);
@@ -29,12 +30,12 @@ const PostStatus = () => {
 
   const submitPost = async (event: React.MouseEvent) => {
     event.preventDefault();
-    presenterRef.current!.submitPost(authToken!, currentUser!);
+    presenterRef.current!.submitPost(authToken!, currentUser!, post);
   };
 
   const clearPost = (event: React.MouseEvent) => {
     event.preventDefault();
-    presenterRef.current!.post = "";
+    setPost("");
   };
 
   return (
@@ -45,9 +46,9 @@ const PostStatus = () => {
           id="postStatusTextArea"
           rows={10}
           placeholder="What's on your mind?"
-          value={presenterRef.current!.post}
+          value={post}
           onChange={(event) => {
-            presenterRef.current!.post = event.target.value;
+            setPost(event.target.value);
           }}
         />
       </div>
@@ -59,6 +60,7 @@ const PostStatus = () => {
           disabled={presenterRef.current!.checkButtonStatus(
             authToken!,
             currentUser!,
+            post,
           )}
           style={{ width: "8em" }}
           onClick={submitPost}
@@ -80,6 +82,7 @@ const PostStatus = () => {
           disabled={presenterRef.current!.checkButtonStatus(
             authToken!,
             currentUser!,
+            post,
           )}
           onClick={clearPost}
         >
