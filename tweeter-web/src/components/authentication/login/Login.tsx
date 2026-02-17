@@ -13,10 +13,6 @@ interface Props {
 }
 
 const Login = (props: Props) => {
-  const [alias, setAlias] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-
   const navigate = useNavigate();
   const { updateUserInfo } = useUserActions();
   const { displayErrorMessage } = useMessageActions();
@@ -35,22 +31,17 @@ const Login = (props: Props) => {
   const loginOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
     if (
       event.key == "Enter" &&
-      !presenterRef.current!.checkSubmitButtonStatus(alias, password)
+      !presenterRef.current!.checkSubmitButtonStatus()
     ) {
-      presenterRef.current!.doLogin(
-        props.originalUrl,
-        alias,
-        password,
-        rememberMe,
-      );
+      presenterRef.current!.doLogin(props.originalUrl);
     }
   };
 
   const inputFieldFactory = () => {
     return (
       <AuthenticationFields
-        setAlias={setAlias}
-        setPassword={setPassword}
+        setAlias={(alias) => (presenterRef.current!.alias = alias)}
+        setPassword={(password) => (presenterRef.current!.password = password)}
         onEnter={loginOnEnter}
       />
     );
@@ -71,19 +62,12 @@ const Login = (props: Props) => {
       oAuthHeading="Sign in with:"
       inputFieldFactory={inputFieldFactory}
       switchAuthenticationMethodFactory={switchAuthenticationMethodFactory}
-      setRememberMe={setRememberMe}
+      setRememberMe={(value) => (presenterRef.current!.rememberMe = value)}
       submitButtonDisabled={() =>
-        presenterRef.current!.checkSubmitButtonStatus(alias, password)
+        presenterRef.current!.checkSubmitButtonStatus()
       }
       isLoading={presenterRef.current!.isLoading}
-      submit={() =>
-        presenterRef.current!.doLogin(
-          props.originalUrl,
-          alias,
-          password,
-          rememberMe,
-        )
-      }
+      submit={() => presenterRef.current!.doLogin(props.originalUrl)}
     />
   );
 };
