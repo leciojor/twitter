@@ -36,13 +36,6 @@ const StatusItem = (props: Props) => {
     presenterRef.current = props.presenterFactory(listener);
   }
 
-  const getUser = async (
-    authToken: AuthToken,
-    alias: string,
-  ): Promise<User | null> => {
-    return presenterRef.current!.getUser(authToken, alias);
-  };
-
   const reset = async () => {
     setItems(() => []);
     presenterRef.current!.reset();
@@ -59,11 +52,13 @@ const StatusItem = (props: Props) => {
       displayedUserAliasParam &&
       displayedUserAliasParam != displayedUser!.alias
     ) {
-      getUser(authToken!, displayedUserAliasParam!).then((toUser) => {
-        if (toUser) {
-          setDisplayedUser(toUser);
-        }
-      });
+      presenterRef
+        .current!.getUser(authToken!, displayedUserAliasParam!)
+        .then((toUser) => {
+          if (toUser) {
+            setDisplayedUser(toUser);
+          }
+        });
     }
   }, [displayedUserAliasParam]);
 
