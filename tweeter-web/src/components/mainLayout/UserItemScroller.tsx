@@ -1,6 +1,6 @@
 import InfiniteScroll from "react-infinite-scroll-component";
 import UserItem from "../userItem/UserItem";
-import { AuthToken, User } from "tweeter-shared";
+import { User } from "tweeter-shared";
 import { useUserInfo } from "../userInfo/UserHooks";
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
