@@ -109,9 +109,7 @@ const AppNavbar = () => {
             <Nav.Item>
               <NavLink
                 id="logout"
-                onClick={() =>
-                  authToken ? presenterRef.current!.logOut(authToken) : null
-                }
+                onClick={() => presenterRef.current!.logOut(authToken!)}
                 to={location.pathname}
                 className={({ isActive }) =>
                   isActive ? "nav-link active" : "nav-link"
