@@ -11,14 +11,14 @@ export interface RegisterView {
     remember: boolean,
   ) => void;
   navigateTo: (path: string) => void;
+  setIsLoading: (isLoading: boolean) => void;
+  setImageUrl: (imageUrl: string) => void;
 }
 
 export class RegisterPresenter {
   private registerService: RegisterService;
   private view: RegisterView;
-  private _isLoading: boolean = false;
   private _imageBytes: Uint8Array = new Uint8Array();
-  private _imageUrl: string = "";
   private _imageFileExtension: string = "";
 
   public constructor(view: RegisterView) {
@@ -31,14 +31,15 @@ export class RegisterPresenter {
     lastName: string,
     alias: string,
     password: string,
+    imageUrl: string,
   ): boolean {
     return (
       !firstName ||
       !lastName ||
       !alias ||
-      !password 
-    //   !this.imageUrl ||
-    //   !this.imageFileExtension
+      !password ||
+      !imageUrl ||
+      !this.imageFileExtension
     );
   }
 
@@ -48,7 +49,7 @@ export class RegisterPresenter {
 
   public handleImageFile(file: File | undefined) {
     if (file) {
-      this.imageUrl = URL.createObjectURL(file);
+      this.view.setImageUrl(URL.createObjectURL(file));
 
       const reader = new FileReader();
       reader.onload = (event: ProgressEvent<FileReader>) => {
@@ -73,7 +74,7 @@ export class RegisterPresenter {
         this.imageFileExtension = fileExtension;
       }
     } else {
-      this.imageUrl = "";
+      this.view.setImageUrl("");
       this.imageBytes = new Uint8Array();
     }
   }
@@ -86,7 +87,7 @@ export class RegisterPresenter {
     rememberMe: boolean,
   ) {
     try {
-      this.isLoading = true;
+      this.view.setIsLoading(true);
 
       const [user, authToken] = await this.registerService.register(
         firstName,
@@ -104,16 +105,8 @@ export class RegisterPresenter {
         `Failed to register user because of exception: ${error}`,
       );
     } finally {
-      this.isLoading = false;
+      this.view.setIsLoading(false);
     }
-  }
-
-  public get isLoading() {
-    return this._isLoading;
-  }
-
-  public get imageUrl() {
-    return this._imageUrl;
   }
 
   public get imageFileExtension() {
@@ -122,14 +115,6 @@ export class RegisterPresenter {
 
   public get imageBytes() {
     return this._imageBytes;
-  }
-
-  protected set isLoading(isLoading: boolean) {
-    this._isLoading = isLoading;
-  }
-
-  protected set imageUrl(imageUrl: string) {
-    this._imageUrl = imageUrl;
   }
 
   protected set imageFileExtension(imageFileExtension: string) {

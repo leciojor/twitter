@@ -19,12 +19,16 @@ const Register = () => {
   const [lastName, setLastName] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const listener: RegisterView = {
     displayErrorMessage: displayErrorMessage,
     updateUserInfo: updateUserInfo,
     navigateTo: (path: string) => navigate(path),
+    setIsLoading: setIsLoading,
+    setImageUrl: setImageUrl,
   };
 
   const presenterRef = useRef<RegisterPresenter | null>(null);
@@ -40,6 +44,7 @@ const Register = () => {
         lastName,
         alias,
         password,
+        imageUrl,
       )
     ) {
       presenterRef.current!.doRegister(
@@ -98,14 +103,10 @@ const Register = () => {
             onKeyDown={registerOnEnter}
             onChange={handleFileChange}
           />
-          {presenterRef.current!.imageUrl.length > 0 && (
+          {imageUrl.length > 0 && (
             <>
               <label htmlFor="imageFileInput">User Image</label>
-              <img
-                src={presenterRef.current!.imageUrl}
-                className="img-thumbnail"
-                alt=""
-              ></img>
+              <img src={imageUrl} className="img-thumbnail" alt=""></img>
             </>
           )}
         </div>
@@ -135,9 +136,10 @@ const Register = () => {
           lastName,
           alias,
           password,
+          imageUrl,
         )
       }
-      isLoading={presenterRef.current!.isLoading}
+      isLoading={isLoading}
       submit={() =>
         presenterRef.current!.doRegister(
           firstName,

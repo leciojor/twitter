@@ -16,6 +16,7 @@ const Login = (props: Props) => {
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const { updateUserInfo } = useUserActions();
@@ -25,6 +26,7 @@ const Login = (props: Props) => {
     displayErrorMessage: displayErrorMessage,
     updateUserInfo: updateUserInfo,
     navigateTo: (path: string) => navigate(path),
+    setIsLoading: setIsLoading
   };
 
   const presenterRef = useRef<LoginPresenter | null>(null);
@@ -75,7 +77,7 @@ const Login = (props: Props) => {
       submitButtonDisabled={() =>
         presenterRef.current!.checkSubmitButtonStatus(alias, password)
       }
-      isLoading={presenterRef.current!.isLoading}
+      isLoading={isLoading}
       submit={() =>
         presenterRef.current!.doLogin(
           props.originalUrl,
