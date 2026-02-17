@@ -17,13 +17,8 @@ export class RegisterPresenter {
   private registerService: RegisterService;
   private view: RegisterView;
   private _isLoading: boolean = false;
-  private _password: string = "";
-  private _rememberMe: boolean = false;
-  private _alias: string = "";
-  private _firstName: string = "";
-  private _lastName: string = "";
-  private _imageUrl: string = "";
   private _imageBytes: Uint8Array = new Uint8Array();
+  private _imageUrl: string = "";
   private _imageFileExtension: string = "";
 
   public constructor(view: RegisterView) {
@@ -31,14 +26,19 @@ export class RegisterPresenter {
     this.registerService = new RegisterService();
   }
 
-  public checkSubmitButtonStatus(): boolean {
+  public checkSubmitButtonStatus(
+    firstName: string,
+    lastName: string,
+    alias: string,
+    password: string,
+  ): boolean {
     return (
-      !this.firstName ||
-      !this.lastName ||
-      !this.alias ||
-      !this.password ||
-      !this.imageUrl ||
-      !this.imageFileExtension
+      !firstName ||
+      !lastName ||
+      !alias ||
+      !password 
+    //   !this.imageUrl ||
+    //   !this.imageFileExtension
     );
   }
 
@@ -78,20 +78,26 @@ export class RegisterPresenter {
     }
   }
 
-  public async doRegister() {
+  public async doRegister(
+    firstName: string,
+    lastName: string,
+    alias: string,
+    password: string,
+    rememberMe: boolean,
+  ) {
     try {
       this.isLoading = true;
 
       const [user, authToken] = await this.registerService.register(
-        this.firstName,
-        this.lastName,
-        this.alias,
-        this.password,
+        firstName,
+        lastName,
+        alias,
+        password,
         this.imageBytes,
         this.imageFileExtension,
       );
 
-      this.view.updateUserInfo(user, user, authToken, this.rememberMe);
+      this.view.updateUserInfo(user, user, authToken, rememberMe);
       this.view.navigateTo(`/feed/${user.alias}`);
     } catch (error) {
       this.view.displayErrorMessage(
@@ -106,18 +112,6 @@ export class RegisterPresenter {
     return this._isLoading;
   }
 
-  public get alias() {
-    return this._alias;
-  }
-
-  public get firstName() {
-    return this._firstName;
-  }
-
-  public get lastName() {
-    return this._lastName;
-  }
-
   public get imageUrl() {
     return this._imageUrl;
   }
@@ -128,26 +122,6 @@ export class RegisterPresenter {
 
   public get imageBytes() {
     return this._imageBytes;
-  }
-
-  public set alias(alias: string) {
-    this._alias = alias;
-  }
-
-  public set firstName(firstName: string) {
-    this._firstName = firstName;
-  }
-
-  public set lastName(lastName: string) {
-    this._lastName = lastName;
-  }
-
-  public set password(password: string) {
-    this._password = password;
-  }
-
-  public set rememberMe(rememberMe: boolean) {
-    this._rememberMe = rememberMe;
   }
 
   protected set isLoading(isLoading: boolean) {

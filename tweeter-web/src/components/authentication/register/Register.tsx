@@ -15,6 +15,11 @@ const Register = () => {
   const navigate = useNavigate();
   const { updateUserInfo } = useUserActions();
   const { displayErrorMessage } = useMessageActions();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [alias, setAlias] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   const listener: RegisterView = {
     displayErrorMessage: displayErrorMessage,
@@ -30,9 +35,20 @@ const Register = () => {
   const registerOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
     if (
       event.key == "Enter" &&
-      !presenterRef.current!.checkSubmitButtonStatus()
+      !presenterRef.current!.checkSubmitButtonStatus(
+        firstName,
+        lastName,
+        alias,
+        password,
+      )
     ) {
-      presenterRef.current!.doRegister();
+      presenterRef.current!.doRegister(
+        firstName,
+        lastName,
+        alias,
+        password,
+        rememberMe,
+      );
     }
   };
 
@@ -52,9 +68,7 @@ const Register = () => {
             id="firstNameInput"
             placeholder="First Name"
             onKeyDown={registerOnEnter}
-            onChange={(event) =>
-              (presenterRef.current!.firstName = event.target.value)
-            }
+            onChange={(event) => setFirstName(event.target.value)}
           />
           <label htmlFor="firstNameInput">First Name</label>
         </div>
@@ -66,17 +80,13 @@ const Register = () => {
             id="lastNameInput"
             placeholder="Last Name"
             onKeyDown={registerOnEnter}
-            onChange={(event) =>
-              (presenterRef.current!.lastName = event.target.value)
-            }
+            onChange={(event) => setLastName(event.target.value)}
           />
           <label htmlFor="lastNameInput">Last Name</label>
         </div>
         <AuthenticationFields
-          setAlias={(alias) => (presenterRef.current!.alias = alias)}
-          setPassword={(password) =>
-            (presenterRef.current!.password = password)
-          }
+          setAlias={setAlias}
+          setPassword={setPassword}
           onEnter={registerOnEnter}
         />
 
@@ -106,7 +116,7 @@ const Register = () => {
   const switchAuthenticationMethodFactory = () => {
     return (
       <div className="mb-3">
-        Algready registered? <Link to="/login">Sign in</Link>
+        Already registered? <Link to="/login">Sign in</Link>
       </div>
     );
   };
@@ -118,12 +128,25 @@ const Register = () => {
       oAuthHeading="Register with:"
       inputFieldFactory={inputFieldFactory}
       switchAuthenticationMethodFactory={switchAuthenticationMethodFactory}
-      setRememberMe={(value) => (presenterRef.current!.rememberMe = value)}
+      setRememberMe={setRememberMe}
       submitButtonDisabled={() =>
-        presenterRef.current!.checkSubmitButtonStatus()
+        presenterRef.current!.checkSubmitButtonStatus(
+          firstName,
+          lastName,
+          alias,
+          password,
+        )
       }
       isLoading={presenterRef.current!.isLoading}
-      submit={presenterRef.current!.doRegister}
+      submit={() =>
+        presenterRef.current!.doRegister(
+          firstName,
+          lastName,
+          alias,
+          password,
+          rememberMe,
+        )
+      }
     />
   );
 };
