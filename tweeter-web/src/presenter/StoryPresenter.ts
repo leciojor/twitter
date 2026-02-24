@@ -17,19 +17,4 @@ export class StoryPresenter extends StatusItemPresenter {
       this.lastItem,
     );
   }
-
-  public async loadMoreItems(authToken: AuthToken, userAlias: string) {
-    await this.doFailureReportingOperation(async () => {
-      const [newItems, hasMore] = await this.service.loadMoreStoryItems(
-        authToken,
-        userAlias,
-        PAGE_SIZE,
-        this.lastItem,
-      );
-
-      this.hasMoreItems = hasMore;
-      this.lastItem = newItems.length ? newItems[newItems.length - 1] : null;
-      this.view.addItems(newItems);
-    }, "load story");
-  }
 }

@@ -1,21 +1,15 @@
-import { User, AuthToken } from "tweeter-shared";
 import { RegisterService } from "../model.service/RegisterService";
 import { Buffer } from "buffer";
-import { View, Presenter } from "./Presenter";
+import {
+  AuthenticationPresenter,
+  AuthenticationView,
+} from "./AuthenticationPresenter";
 
-export interface RegisterView extends View {
-  updateUserInfo: (
-    currentUser: User,
-    displayedUser: User | null,
-    authToken: AuthToken,
-    remember: boolean,
-  ) => void;
-  navigateTo: (path: string) => void;
-  setIsLoading: (isLoading: boolean) => void;
+export interface RegisterView extends AuthenticationView {
   setImageUrl: (imageUrl: string) => void;
 }
 
-export class RegisterPresenter extends Presenter<RegisterView> {
+export class RegisterPresenter extends AuthenticationPresenter<RegisterView> {
   private registerService: RegisterService;
   private _imageBytes: Uint8Array = new Uint8Array();
   private _imageFileExtension: string = "";
@@ -23,6 +17,10 @@ export class RegisterPresenter extends Presenter<RegisterView> {
   public constructor(view: RegisterView) {
     super(view);
     this.registerService = new RegisterService();
+  }
+
+  protected itemDescription(): string {
+    return "register user";
   }
 
   public checkSubmitButtonStatus(
@@ -85,10 +83,8 @@ export class RegisterPresenter extends Presenter<RegisterView> {
     password: string,
     rememberMe: boolean,
   ) {
-    try {
-      await this.doFailureReportingOperation(async () => {
-        this.view.setIsLoading(true);
-
+    await this.doAuthentication(
+      async () => {
         const [user, authToken] = await this.registerService.register(
           firstName,
           lastName,
@@ -97,13 +93,13 @@ export class RegisterPresenter extends Presenter<RegisterView> {
           this.imageBytes,
           this.imageFileExtension,
         );
-
-        this.view.updateUserInfo(user, user, authToken, rememberMe);
-        this.view.navigateTo(`/feed/${user.alias}`);
-      }, "register user");
-    } finally {
-      this.view.setIsLoading(false);
-    }
+        return [user, authToken];
+      },
+      rememberMe,
+      () => {
+        this.view.navigateTo(`/feed/${alias}`);
+      },
+    );
   }
 
   public get imageFileExtension() {
