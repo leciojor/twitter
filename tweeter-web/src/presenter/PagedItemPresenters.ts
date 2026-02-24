@@ -1,6 +1,7 @@
 import { AuthToken, User } from "tweeter-shared";
 import { UserService } from "../model.service/UserService";
 import { View, Presenter } from "./Presenter";
+import { Service } from "../model.service/Service";
 
 export const PAGE_SIZE = 10;
 
@@ -8,15 +9,16 @@ export interface PagedItemView<T> extends View {
   addItems: (newItems: T[]) => void;
 }
 
-export abstract class PagedItemPresenter<T, U extends Service> extends Presenter<
-  PagedItemView<T>
-> {
+export abstract class PagedItemPresenter<
+  T,
+  U extends Service,
+> extends Presenter<PagedItemView<T>> {
   private _hasMoreItems = true;
   private _lastItem: T | null = null;
   private _service: U;
   private userService: UserService;
 
-  protected constructor(view: PagedItemView<T>) {
+  public constructor(view: PagedItemView<T>) {
     super(view);
     this.userService = new UserService();
     this._service = this.serviceFactory();
@@ -39,7 +41,7 @@ export abstract class PagedItemPresenter<T, U extends Service> extends Presenter
     this._hasMoreItems = value;
   }
 
-  protected get service(){
+  protected get service() {
     return this._service;
   }
 
@@ -57,7 +59,7 @@ export abstract class PagedItemPresenter<T, U extends Service> extends Presenter
 
   public async loadMoreItems(authToken: AuthToken, userAlias: string) {
     await this.doFailureReportingOperation(async () => {
-      const [newItems, hasMore] = await this.getMoreItems(authToken, userAlias)
+      const [newItems, hasMore] = await this.getMoreItems(authToken, userAlias);
 
       this.hasMoreItems = hasMore;
       this.lastItem = newItems.length ? newItems[newItems.length - 1] : null;
@@ -67,5 +69,8 @@ export abstract class PagedItemPresenter<T, U extends Service> extends Presenter
 
   protected abstract itemDescription(): string;
 
-  protected abstract getMoreItems(authToken: AuthToken, userAlias: string): Promise<[T[], boolean]>;
+  protected abstract getMoreItems(
+    authToken: AuthToken,
+    userAlias: string,
+  ): Promise<[T[], boolean]>;
 }

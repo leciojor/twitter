@@ -1,7 +1,6 @@
 import { User } from "tweeter-shared/dist/model/domain/User";
 import { PagedItemPresenter } from "./PagedItemPresenters";
 import { FollowService } from "../model.service/FollowService";
-import { AuthToken } from "tweeter-shared";
 
 export abstract class UserItemPresenter extends PagedItemPresenter<
   User,

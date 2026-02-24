@@ -1,4 +1,5 @@
 import { AuthToken, User, FakeData } from "tweeter-shared";
+import { Service } from "./Service";
 
 export class UserService implements Service {
   public async getUser(

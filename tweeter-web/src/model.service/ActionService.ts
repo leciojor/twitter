@@ -1,4 +1,5 @@
 import { AuthToken, Status } from "tweeter-shared";
+import { Service } from "./Service";
 
 export class ActionService implements Service {
   public async logout(authToken: AuthToken): Promise<void> {

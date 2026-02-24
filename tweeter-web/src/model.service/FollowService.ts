@@ -1,4 +1,5 @@
 import { AuthToken, User, FakeData, Status } from "tweeter-shared";
+import { Service } from "./Service";
 
 export class FollowService implements Service {
   public async loadMoreFollowees(
