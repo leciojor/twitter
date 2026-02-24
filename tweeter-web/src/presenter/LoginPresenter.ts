@@ -1,8 +1,8 @@
 import { User, AuthToken } from "tweeter-shared";
 import { LoginService } from "../model.service/LoginService";
+import { View, Presenter } from "./Presenter";
 
-export interface LoginView {
-  displayErrorMessage: (message: string) => void;
+export interface LoginView extends View {
   updateUserInfo: (
     currentUser: User,
     displayedUser: User | null,
@@ -13,12 +13,11 @@ export interface LoginView {
   setIsLoading: (isLoading: boolean) => void;
 }
 
-export class LoginPresenter {
+export class LoginPresenter extends Presenter<LoginView> {
   private loginService: LoginService;
-  private view: LoginView;
 
   public constructor(view: LoginView) {
-    this.view = view;
+    super(view);
     this.loginService = new LoginService();
   }
 
@@ -33,21 +32,22 @@ export class LoginPresenter {
     rememberMe: boolean,
   ) {
     try {
-      this.view.setIsLoading(true);
+      await this.doFailureReportingOperation(async () => {
+        this.view.setIsLoading(true);
 
-      const [user, authToken] = await this.loginService.login(alias, password);
+        const [user, authToken] = await this.loginService.login(
+          alias,
+          password,
+        );
 
-      this.view.updateUserInfo(user, user, authToken, rememberMe);
+        this.view.updateUserInfo(user, user, authToken, rememberMe);
 
-      if (!!originalUrl) {
-        this.view.navigateTo(originalUrl);
-      } else {
-        this.view.navigateTo(`/feed/${user.alias}`);
-      }
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to log user in because of exception: ${error}`,
-      );
+        if (!!originalUrl) {
+          this.view.navigateTo(originalUrl);
+        } else {
+          this.view.navigateTo(`/feed/${user.alias}`);
+        }
+      }, "log user in");
     } finally {
       this.view.setIsLoading(false);
     }

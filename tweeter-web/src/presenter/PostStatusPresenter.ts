@@ -1,24 +1,23 @@
 import { AuthToken, Status, User } from "tweeter-shared";
 import { ActionService } from "../model.service/ActionService";
+import { View, Presenter } from "./Presenter";
 
-export interface PostStatusView {
+export interface PostStatusView extends View {
   displayInfoMessage: (
     message: string,
     duration: number,
     bootstrapClasses?: string | undefined,
   ) => string;
-  displayErrorMessage: (message: string) => void;
   deleteMessage: (messageId: string) => void;
   setIsLoading: (isLoading: boolean) => void;
   setPost: (post: string) => void;
 }
 
-export class PostStatusPresenter {
-  private view: PostStatusView;
+export class PostStatusPresenter extends Presenter<PostStatusView> {
   private actionService: ActionService;
 
   public constructor(view: PostStatusView) {
-    this.view = view;
+    super(view);
     this.actionService = new ActionService();
   }
 
@@ -38,22 +37,20 @@ export class PostStatusPresenter {
     var postingStatusToastId = "";
 
     try {
-      this.view.setIsLoading(true);
-      postingStatusToastId = this.view.displayInfoMessage(
-        "Posting status...",
-        0,
-      );
+      await this.doFailureReportingOperation(async () => {
+        this.view.setIsLoading(true);
+        postingStatusToastId = this.view.displayInfoMessage(
+          "Posting status...",
+          0,
+        );
 
-      const status = new Status(post, currentUser!, Date.now());
+        const status = new Status(post, currentUser!, Date.now());
 
-      await this.actionService.postStatus(authToken!, status);
+        await this.actionService.postStatus(authToken!, status);
 
-      this.view.setPost("");
-      this.view.displayInfoMessage("Status posted!", 2000);
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to post the status because of exception: ${error}`,
-      );
+        this.view.setPost("");
+        this.view.displayInfoMessage("Status posted!", 2000);
+      }, "post the status");
     } finally {
       this.view.deleteMessage(postingStatusToastId);
       this.view.setIsLoading(false);

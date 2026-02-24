@@ -1,9 +1,9 @@
 import { User, AuthToken } from "tweeter-shared";
 import { RegisterService } from "../model.service/RegisterService";
 import { Buffer } from "buffer";
+import { View, Presenter } from "./Presenter";
 
-export interface RegisterView {
-  displayErrorMessage: (message: string) => void;
+export interface RegisterView extends View {
   updateUserInfo: (
     currentUser: User,
     displayedUser: User | null,
@@ -15,14 +15,13 @@ export interface RegisterView {
   setImageUrl: (imageUrl: string) => void;
 }
 
-export class RegisterPresenter {
+export class RegisterPresenter extends Presenter<RegisterView> {
   private registerService: RegisterService;
-  private view: RegisterView;
   private _imageBytes: Uint8Array = new Uint8Array();
   private _imageFileExtension: string = "";
 
   public constructor(view: RegisterView) {
-    this.view = view;
+    super(view);
     this.registerService = new RegisterService();
   }
 
@@ -87,23 +86,21 @@ export class RegisterPresenter {
     rememberMe: boolean,
   ) {
     try {
-      this.view.setIsLoading(true);
+      await this.doFailureReportingOperation(async () => {
+        this.view.setIsLoading(true);
 
-      const [user, authToken] = await this.registerService.register(
-        firstName,
-        lastName,
-        alias,
-        password,
-        this.imageBytes,
-        this.imageFileExtension,
-      );
+        const [user, authToken] = await this.registerService.register(
+          firstName,
+          lastName,
+          alias,
+          password,
+          this.imageBytes,
+          this.imageFileExtension,
+        );
 
-      this.view.updateUserInfo(user, user, authToken, rememberMe);
-      this.view.navigateTo(`/feed/${user.alias}`);
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to register user because of exception: ${error}`,
-      );
+        this.view.updateUserInfo(user, user, authToken, rememberMe);
+        this.view.navigateTo(`/feed/${user.alias}`);
+      }, "register user");
     } finally {
       this.view.setIsLoading(false);
     }
