@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import { User, AuthToken, FakeData } from "tweeter-shared";
 
-export class RegisterService {
+export class RegisterService implements Service {
   public async register(
     firstName: string,
     lastName: string,
