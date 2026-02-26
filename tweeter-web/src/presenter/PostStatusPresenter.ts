@@ -8,11 +8,15 @@ export interface PostStatusView extends MessageView {
 }
 
 export class PostStatusPresenter extends Presenter<PostStatusView> {
-  private actionService: ActionService;
+  private _actionService: ActionService;
 
   public constructor(view: PostStatusView) {
     super(view);
-    this.actionService = new ActionService();
+    this._actionService = new ActionService();
+  }
+
+  public get actionService() {
+    return this._actionService;
   }
 
   public checkButtonStatus(
