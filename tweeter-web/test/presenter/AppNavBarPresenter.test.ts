@@ -55,7 +55,7 @@ describe("AppNavBarPresenter", () => {
 
     verify(mockAppNavBarPresenterView.deleteMessage(messageId)).once();
     verify(mockAppNavBarPresenterView.clearUserInfo()).once();
-    verify(mockAppNavBarPresenterView.navigateTo(anything())).once();
+    verify(mockAppNavBarPresenterView.navigateTo('/login')).once();
 
     verify(mockAppNavBarPresenterView.displayErrorMessage(anything())).never();
   });
@@ -74,6 +74,6 @@ describe("AppNavBarPresenter", () => {
     ).once();
     verify(mockAppNavBarPresenterView.deleteMessage(anything())).never();
     verify(mockAppNavBarPresenterView.clearUserInfo()).never();
-    verify(mockAppNavBarPresenterView.navigateTo(anything())).never();
+    verify(mockAppNavBarPresenterView.navigateTo('/login')).never();
   });
 });

@@ -22,9 +22,6 @@ jest.mock("../../../src/components/userInfo/UserHooks", () => ({
 }));
 
 describe("PostStatus", () => {
-  // const alias = "COOL ALIAS";
-  // const password = "COOL PASSWORD";
-  // const url = "/";
   const randomText = "COOL POST";
   let mockUserInstance: User;
   let mockAuthTokenInstance: AuthToken;
@@ -35,8 +32,6 @@ describe("PostStatus", () => {
 
     const mockAuthToken = mock<AuthToken>();
     mockAuthTokenInstance = instance(mockAuthToken);
-
-    // await loggingIn(url, alias, password);
 
     (useUserInfo as jest.Mock).mockReturnValue({
       currentUser: mockUserInstance,
@@ -85,14 +80,6 @@ function renderPostStatus(presenter?: PostStatusPresenter) {
   );
 }
 
-// function renderLogin(originalUrl: string) {
-//   return render(
-//     <MemoryRouter>
-//       <Login originalUrl={originalUrl} />
-//     </MemoryRouter>,
-//   );
-// }
-
 function renderFeedAndGetElements(presenter?: PostStatusPresenter) {
   const user = userEvent.setup();
 
@@ -115,17 +102,3 @@ async function initialPostFillingAndCheck(randomText: string) {
 
   return { user, postStatusButton, clearButton, textField };
 }
-
-// async function loggingIn(url: string, alias: string, password: string) {
-//   const user = userEvent.setup();
-
-//   renderLogin(url);
-
-//   const signInButton = screen.getByRole("button", { name: /Sign in/i });
-//   const aliasField = screen.getByLabelText("alias");
-//   const passwordField = screen.getByLabelText("password");
-
-//   await user.type(aliasField, alias);
-//   await user.type(passwordField, password);
-//   await user.click(signInButton);
-// }
