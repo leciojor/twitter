@@ -27,11 +27,27 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "test": "jest --passWithNoTests",
     "start": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
     "reload": "npm run build && npm run serve"
   },
+  "jest": {
+    "verbose": true,
+    "testEnvironment": "jsdom",
+    "moduleNameMapper": {
+        "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js"
+    },
+    "testMatch": [
+        "<rootDir>/test/**/*.test.tsx",
+        "<rootDir>/test/**/*.test.ts"
+    ],
+    "transform": {
+        "^.+\\.tsx?$": "ts-jest",
+        "\\.js$": "babel-jest"
+    }
+},
   "eslintConfig": {
     "extends": [
       "react-app",
