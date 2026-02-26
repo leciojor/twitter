@@ -17,6 +17,7 @@ describe("AppNavBarPresenter", () => {
   let mockAppNavBarPresenterView: AppNavBarView;
   let appNavBarPresenter: AppNavBarPresenter;
   let mockService: ActionService;
+  const messageId = "1234";
   const authToken = new AuthToken("aaa", Date.now());
 
   beforeEach(() => {
@@ -24,6 +25,9 @@ describe("AppNavBarPresenter", () => {
     const mockAppNavBarPresenterViewInstance = instance(
       mockAppNavBarPresenterView,
     );
+    when(
+      mockAppNavBarPresenterView.displayInfoMessage(anything(), 0),
+    ).thenReturn(messageId);
 
     const appNavBarPresenterSpy = spy(
       new AppNavBarPresenter(mockAppNavBarPresenterViewInstance),
@@ -49,9 +53,11 @@ describe("AppNavBarPresenter", () => {
   it("tells the view to clear the info message that was displayed previously, clear the user info, and navigate to the login page, when the logout is successful ", async () => {
     await appNavBarPresenter.logOut(authToken);
 
-    verify(mockAppNavBarPresenterView.deleteMessage(anything())).once();
+    verify(mockAppNavBarPresenterView.deleteMessage(messageId)).once();
     verify(mockAppNavBarPresenterView.clearUserInfo()).once();
     verify(mockAppNavBarPresenterView.navigateTo(anything())).once();
+
+    verify(mockAppNavBarPresenterView.displayErrorMessage(anything())).never();
   });
 
   it("tells the view to display an error message and does not tell it to clear the info message, clear the user info or navigate to the login page, when logout not sucessful", async () => {
@@ -66,5 +72,8 @@ describe("AppNavBarPresenter", () => {
         `Failed to log user out because of exception: ${errorMessage}`,
       ),
     ).once();
+    verify(mockAppNavBarPresenterView.deleteMessage(anything())).never();
+    verify(mockAppNavBarPresenterView.clearUserInfo()).never();
+    verify(mockAppNavBarPresenterView.navigateTo(anything())).never();
   });
 });
