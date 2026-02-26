@@ -7,7 +7,11 @@ import {
   PostStatusPresenter,
 } from "../../presenter/PostStatusPresenter";
 
-const PostStatus = () => {
+interface Props {
+  presenter?: PostStatusPresenter;
+}
+
+const PostStatus = ({ presenter }: Props) => {
   const { displayInfoMessage, displayErrorMessage, deleteMessage } =
     useMessageActions();
 
@@ -25,7 +29,7 @@ const PostStatus = () => {
 
   const presenterRef = useRef<PostStatusPresenter | null>(null);
   if (!presenterRef.current) {
-    presenterRef.current = new PostStatusPresenter(listener);
+    presenterRef.current = presenter ?? new PostStatusPresenter(listener);
   }
 
   const submitPost = async (event: React.MouseEvent) => {
@@ -45,6 +49,7 @@ const PostStatus = () => {
           className="form-control"
           id="postStatusTextArea"
           rows={10}
+          aria-label="postArea"
           placeholder="What's on your mind?"
           value={post}
           onChange={(event) => {
@@ -57,6 +62,7 @@ const PostStatus = () => {
           id="postStatusButton"
           className="btn btn-md btn-primary me-1"
           type="button"
+          aria-label="postStatus"
           disabled={presenterRef.current!.checkButtonStatus(
             authToken!,
             currentUser!,
@@ -79,6 +85,7 @@ const PostStatus = () => {
           id="clearStatusButton"
           className="btn btn-md btn-secondary"
           type="button"
+          aria-label="clearStatus"
           disabled={presenterRef.current!.checkButtonStatus(
             authToken!,
             currentUser!,
